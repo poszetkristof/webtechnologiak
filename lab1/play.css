@@ -1,0 +1,98 @@
+/* Univerzális szelektor, minden elemre vonatkozik */
+/* Alapból minden xml elem inline lenne, de így új sorban kezdődik */
+* {
+  display: block;
+}
+
+/* Azok a stagedir elemek, amelyek közvetlenül a line elemben vannak (nem megy mélyebbre az unokához) */
+/* nem törnek új sorba */
+line > stagedir {
+  display: inline;
+}
+
+play {
+  background-color: white;
+  /* serif betűtípus, tehát van talpa */
+  font-family: "Palatino Linotype", Palatino, "Times New Roman", serif;
+  line-height: 1.5; /* sormagasság */
+  margin: 0 auto; /* középre igazítás */
+  max-width: 80ch; /* 80 karakter széles */
+  padding: 2em; /* 2em távolság a szélétől, az aktuális betűméret kétszerese */
+}
+
+author,
+title {
+  font-variant: small-caps; /* a kisbetűk kis nagybetűkként jelennek meg */
+  text-align: center;
+}
+
+/* vagy author vagy olyan title, ami play elem közvetlen gyereke */
+author,
+play > title {
+  font-weight: bold; /* félkövér betűk */
+}
+
+play > title {
+  font-size: xx-large; /* nagyon nagy betűméret */
+  letter-spacing: 0.15em; /* betűk közötti távolság, hogy legyen mégdrámaibb */
+  margin-top: 0.5em; /* felső margó */
+  text-shadow: 1px 1px 2px gray; /* vízszintes és függőleges árnyék, elmosás sugara, szín */
+}
+
+author,
+act > title {
+  font-size: x-large;
+}
+
+scene > title {
+  background-color: slateblue;
+  box-shadow: 0.25em 0.25em 0.5em gray; /* vízszintes és függőleges árnyék, elmosás sugara, szín */
+  color: white;
+  font-size: large;
+  padding: 0.5em;
+}
+
+act {
+  border-top: medium double black; /* dupla vonal az act elemek tetején */
+  margin-top: 2em;
+  padding-top: 1.5em;
+}
+
+scene {
+  padding-top: 1em;
+}
+
+speech,
+scene > stagedir {
+  margin-top: 1em;
+}
+
+stagedir {
+  color: gray;
+  font-style: italic; /* dőlt betű */
+  letter-spacing: 0.05em; /* betűk közötti kis távolság */
+}
+
+/* pszeudo-elemek */
+stagedir::before {
+  content: "(";
+}
+
+stagedir::after {
+  content: ")";
+}
+
+speech > line,
+speech > stagedir {
+  margin-left: 1em;
+}
+
+scene > stagedir {
+  text-align: center;
+}
+
+speaker {
+  font-weight: bold;
+  margin-bottom: 0.25em;
+  text-transform: uppercase;
+}
