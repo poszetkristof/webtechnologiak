@@ -1,0 +1,90 @@
+/* Album főkonténer stílusa */
+album {
+  border: thin solid black; /* vékony fekete keret */
+  border-radius: 0.5em; /* lekerekített sarkok */
+  box-shadow: 0.25em 0.25em 0.5em gray; /* árnyék: vízszintes, függőleges, elmosás, szín */
+  display: block; /* blokk elem, új sorban kezdődik */
+  font-family:
+    "Segoe UI", Arial, sans-serif; /* sans-serif betűtípus, nincs talp */
+  margin: 1em auto; /* felső-alsó margó 1em, oldalak középre igazítva */
+  padding: 1em; /* belső térköz minden oldalon */
+  width: fit-content; /* fit-content: a szélesség pontosan akkora, amennyi a tartalomnak kell */
+}
+
+/* Előadó, album címe és évszám stílusa */
+artist,
+album > title,
+year {
+  font-size: x-large; /* extra nagy betűméret */
+  font-weight: bold; /* félkövér betűk */
+  display: inline-block; /* inline-block: egy sorban, de blokk tulajdonságokkal */
+  margin-bottom: 0.5em; /* alsó margó */
+}
+
+/* Pszeudo-elem: előadó neve után en dash (–) */
+artist::after {
+  content: " \2013 "; /* Unicode en dash karakterrel */
+}
+
+/* Pszeudo-elemek: évszám körül zárójelek */
+year::before {
+  content: "(";
+}
+
+year::after {
+  content: ")";
+}
+
+/* CSS számlálók (CSS counters) használata automatikus számozáshoz */
+tracks {
+  counter-reset: track-number; /* CSS számláló létrehozása és nullázása */
+  display: table; /* táblázatként viselkedik */
+  width: 100%; /* teljes szélesség */
+}
+
+/* Egy szám (track) egy táblázat sor */
+track {
+  display: table-row; /* táblázat sorként viselkedik */
+  transition:
+    background-color 0.4s,
+    font-weight 0.4s; /* animáció a színváltáshoz */
+}
+
+/* Szám címe és időtartama táblázat cellák */
+track > title,
+length {
+  display: table-cell; /* táblázat cellaként viselkedik */
+  padding: 0.5em; /* belső térköz */
+}
+
+/* CSS generated content (generált tartalom) pszeudo-elemekkel */
+track > title::before {
+  content: counter(track-number) "."; /* content property: tartalom beszúrása, counter() függvény */
+  counter-increment: track-number; /* számláló értékének növelése eggyel */
+  display: inline-block; /* inline-block elem */
+  margin-right: 0.5em; /* jobb margó */
+  text-align: right; /* jobbra igazítás */
+  width: 2em; /* fix szélesség */
+}
+
+/* OpenType betűtípus funkciók */
+length {
+  font-variant-numeric: tabular-nums; /* tabular-nums: monospace számok (minden szám egyforma széles) */
+  text-align: right; /* jobbra igazítás */
+}
+
+/* Structural pseudo-classes (szerkezeti pszeudo-osztályok) zebra csíkozáshoz */
+track:nth-child(odd) {
+  background-color: whitesmoke; /* odd = páratlan sorszámú gyerek elemek */
+}
+
+track:nth-child(even) {
+  background-color: white; /* even = páros sorszámú gyerek elemek */
+}
+
+/* Hover effekt: egér rámutatáskor */
+track:hover {
+  background-color: gold; /* arany háttérszín */
+  cursor: pointer; /* mutató kurzor */
+  font-weight: bold; /* félkövér betű */
+}

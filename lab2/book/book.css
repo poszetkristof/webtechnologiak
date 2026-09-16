@@ -1,2 +1,120 @@
-@import url("https://fonts.googleapis.com/css2?family=Anton&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&display=swap");
+/* Betűtípusok a Google Fonts-ról (az @import mindig a fájl legelejére kell) */
+@import url("https://fonts.googleapis.com/css2?family=EB+Garamond"); /* ezzel lesz szedve a szöveg */
+@import url("https://fonts.googleapis.com/css2?family=Anton"); /* a feladat a szerzőhöz és a címekhez kéri */
+
+book,
+author,
+title,
+chapter,
+para {
+  display: block; /* új sorban kezdődik, és kitölti a teljes szélességet */
+}
+
+/* Az egész könyv */
+book {
+  font-family:
+    "EB Garamond", Garamond, Georgia, "Times New Roman", Times, serif; /* az elsőt használja, ami megvan a gépen */
+  background-color: #f8f8f8; /* nagyon világos szürke háttér */
+  max-width: 80ch; /* legfeljebb kb. 80 betű széles, így nem lesznek túl hosszúak a sorok */
+  margin: auto; /* középre kerül az oldalon */
+  padding: 2em; /* belső térköz */
+  counter-reset: chapter-number footnote-number; /* két számlálót indítunk 0-ról: fejezetekhez és lábjegyzetekhez */
+}
+
+/* A szerző és az összes cím: Anton betűtípus, középre */
+author,
+title {
+  font-family: "Anton", "Arial Narrow", Impact, sans-serif; /* a feladat ezt kéri a szerzőhöz és a címekhez */
+  text-align: center;
+}
+
+author {
+  font-size: 2em; /* a szülő betűméretének 2-szerese */
+}
+
+/* Csak a könyv címe, mert csak az van közvetlenül a book-ban. A fejezetcímek a chapter-ben vannak. */
+book > title {
+  font-size: 4em;
+  margin: 0.5em 0 1em 0; /* fent, jobbra, lent, balra */
+}
+
+/* A szerző és a könyv címe kiskapitálissal, kicsit széthúzott betűkkel */
+author,
+book > title {
+  font-variant: small-caps; /* a kisbetűk kisebb nagybetűként jelennek meg */
+  letter-spacing: 0.1em; /* nagyobb hely a betűk között */
+}
+
+/* Az a chapter, ami rögtön egy title után jön. Ilyen csak az első fejezet: előtte a könyv címe van. */
+title + chapter {
+  border-top: medium double black; /* dupla vonal a könyv címe alatt */
+}
+
+/* A fejezetcímek */
+chapter > title {
+  font-size: x-large;
+  margin: 1em 0 0.75em 0;
+}
+
+/* A fejezetcím elé kiírjuk: "Chapter I —", "Chapter II —", ... */
+chapter > title::before {
+  content: "Chapter " counter(chapter-number, upper-roman) " \2014"; /* római szám, \2014 a hosszú gondolatjel: — */
+  counter-increment: chapter-number; /* minden fejezetcímnél eggyel nő a számláló */
+}
+
+/* A bekezdések */
+para {
+  line-height: 1.5; /* a sorok távolsága a betűméret 1,5-szerese */
+  margin: 0.75em 0; /* fent és lent 0.75em (eredetileg "0.75" volt, mértékegység nélkül nem működött) */
+  text-indent: 1.5em; /* az első sor beljebb kezdődik */
+}
+
+/* A cím utáni első bekezdés nincs behúzva (könyvekben is így szokás) */
+title + para {
+  text-indent: 0;
+}
+
+/* A cím utáni első bekezdés első betűje nagyobb és vastagabb */
+title + para::first-letter {
+  font-size: 1.7em;
+  font-weight: bold;
+  line-height: 1; /* hogy a nagy betű ne tolja szét az első sort */
+  margin-right: 1px;
+}
+
+/* Ha az egér a bekezdés fölött van */
+para:hover {
+  background-color: rgb(181, 184, 187); /* szürke háttér */
+  color: white; /* fehér betűk */
+  cursor: pointer; /* az egérmutató kézzé változik */
+}
+
+/* A lábjegyzetnek alapból csak a sorszáma látszik, a szövege nem.
+   A font-size: 0 összenyomja a szöveget, a sorszám a ::before-tól kap saját méretet. */
+footnote {
+  display: inline; /* ne kezdjen új sort */
+  vertical-align: super; /* feljebb kerül, mint a hatványkitevő */
+  font-size: 0;
+}
+
+/* A lábjegyzet elé a sorszáma: [1], [2], ... */
+footnote::before {
+  content: "[" counter(footnote-number) "]";
+  counter-increment: footnote-number; /* a book-nál indult, ezért az egész könyvben folyamatosan számoz */
+  font-size: small; /* kisebb betűvel */
+}
+
+/* Ha az egér a lábjegyzet fölött van, előbukkan a szövege: kék háttér, fehér betű */
+footnote:hover {
+  background-color: slateblue;
+  color: white;
+  font-size: large;
+  padding: 0.5em;
+}
+
+/* Ha az egér a lábjegyzet fölött van, a [1] is legyen nagyobb.
+   Magától nem nőne meg, mert fent kapott egy saját font-size: small-t. */
+footnote:hover::before {
+  font-size: large;
+  padding-right: 0.25em; /* kis hely a [1] után */
+}
