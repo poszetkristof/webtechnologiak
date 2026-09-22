@@ -33,17 +33,14 @@ Valószínűleg nincs Java a gépen.
 4. Zárd be teljesen a VS Code-ot, és nyisd meg újra.
 5. Nyomd meg újra: **Shift + Alt + F**
 
-<!-- screenshot -->
-
 ### Ha ezt írja ki: `Configure Default Formatter`
 
 A bővítmény már telepítve van, csak ki kell választani.
 
 1. Kattints a **Configure Default Formatter** gombra.
+   - ![alt text](image.png)
 2. Válaszd: **XML (Red Hat)**
-
-<!-- screenshot -->
-
+   - ![alt text](image-1.png)
 3. Nyomd meg újra: **Shift + Alt + F**
 
 ## Tipp: formázás mentéskor
