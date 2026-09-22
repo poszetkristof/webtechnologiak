@@ -25,11 +25,13 @@ Nincs telepítve az XML bővítmény.
 
 ### Ha telepítve van, de még mindig ezt írja ki
 
-Próbáld ezeket sorban, mindegyik után nyomj egy **Shift + Alt + F**-et:
+Valószínűleg nincs Java a gépen.
 
-1. **Indítsd újra a VS Code-ot.** A bővítménynek kell egy kis idő, mire első indításkor mindent letölt.
-2. **Nézd meg, be van-e kapcsolva.** Nyomd meg: **Ctrl + Shift + X**, keresd meg az XML-t. Ha **Enable** gombot látsz, kattints rá.
-3. **Nézd meg a jobb alsó sarkot.** Ott ki van írva, minek látja a VS Code a fájlt. Ha nem **XML** (hanem pl. `Plain Text`), kattints rá, és válaszd: **XML**.
+1. Nyiss egy terminált, és írd be: `java -version`
+2. Ha hibát ír ki, töltsd le a Javát: [oracle.com/java/technologies/downloads](https://www.oracle.com/java/technologies/downloads/), Windows fül, **x64 MSI Installer**.
+3. Telepítsd, és kattints végig mindent.
+4. Zárd be teljesen a VS Code-ot, és nyisd meg újra.
+5. Nyomd meg újra: **Shift + Alt + F**
 
 <!-- screenshot -->
 
