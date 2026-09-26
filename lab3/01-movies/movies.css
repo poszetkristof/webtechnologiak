@@ -1,0 +1,121 @@
+/* Betűtípus a Google Fonts-ról (az @import a fájl legelejére kell) */
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
+
+/* A filmlistát körbefogó doboz */
+movies {
+  border: medium solid indigo; /* közepes vastagságú, egyvonalas lila keret */
+  box-shadow: 0.25em 0.25em 0.5em indigo; /* árnyék: jobbra, lefelé, elmosás, szín */
+  display: block;
+  font-family:
+    Roboto, Helvetica, Arial, sans-serif; /* az elsőt használja, ami megvan a gépen */
+  margin: 1em;
+  padding: 1em;
+}
+
+movie {
+  display: list-item;
+  list-style-type: disc; /* a sor elejére kerülő jel: tele pötty */
+  margin: 0 2em; /* ha nem húzzuk beljebb, a pötty kilógna a keret mellé */
+  padding: 0.5em;
+}
+
+/* Minden címet elrejtünk, mert egy filmnek több nyelven is van címe */
+title {
+  display: none; /* teljesen eltűnik, még helyet sem foglal */
+}
+
+/* Az angol címet visszahozzuk, a többi adat is egy sorban áll */
+title:lang(en),
+year,
+genre,
+rating,
+votes {
+  display: inline-block; /* egymás mellé kerülnek, de dobozként méretezhetők */
+  vertical-align: middle; /* a sor közepére igazítva, hogy a magasabb pirulák ne ugrálják szét a sort */
+}
+/* :lang(en) = az az elem, aminek xml:lang="en" az attribútuma */
+
+/* A cím és az év nagyobb betűvel */
+title,
+year {
+  font-size: 1.2em;
+}
+
+/* Az évszám köré zárójel és kettőspont: "(1979):" – ez nincs benne az XML-ben, a CSS teszi hozzá */
+year::before {
+  content: "(";
+}
+
+year::after {
+  content: "):";
+}
+
+genre {
+  background-color: blueviolet;
+  border-radius: 9999px; /* nagyon nagy érték = tökéletesen lekerekített, pirula alak */
+  font-size: 0.9em;
+  margin-right: 0.1em; /* kis hely két pirula között */
+  padding: 0.25em 0.6em; /* fent-lent 0.25em, jobbra-balra 0.6em */
+  text-align: center;
+}
+
+/* Az értékelés rózsaszín dobozban */
+rating {
+  background-color: hotpink;
+  font-weight: bold;
+}
+
+/* A 8.5-ből így lesz 8.5/10 */
+rating::after {
+  content: "/10";
+}
+
+votes::before {
+  content: " from ";
+}
+
+votes::after {
+  content: " ratings";
+}
+
+/* Ha az egér a film fölött van, a háttere világoskék */
+movie:hover {
+  background-color: powderblue;
+}
+
+/* A színváltás 0.4 másodperc alatt megy át. */
+movie {
+  transition: background-color 0.4s ease;
+}
+
+/* Ha az egér a film fölött van, a sor végére kiírjuk az IMDb-linkjét */
+movie:hover::after {
+  background-color: gold;
+  color: blueviolet;
+  content: "https://www.imdb.com/title/tt" attr(id); /* attr(id) = a movie id attribútumának értéke */
+  font-family: monospace; /* írógépbetű, mint a kódban */
+  font-size: large;
+}
+
+/* Fehér szöveg a színes háttereken (műfaj-pirula, értékelés, és a hoverre megjelenő link) */
+genre,
+rating,
+movie:hover::after {
+  color: white;
+}
+
+/* Enyhén lekerekített sarok és belső térköz ugyanezeknek */
+rating,
+movie:hover::after {
+  border-radius: 0.25em;
+  padding: 0.25em;
+}
+
+/* Az R és NC-17 besorolású filmek címe és éve piros és félkövér.
+   Az :is() csak rövidítés, kibontva négy szelektor lenne:
+   movie[mpa-rating="R"] > title, movie[mpa-rating="R"] > year,
+   movie[mpa-rating="NC-17"] > title, movie[mpa-rating="NC-17"] > year */
+movie:is([mpa-rating="R"], [mpa-rating="NC-17"]) > :is(title, year) {
+  color: red;
+  font-weight: bold;
+}

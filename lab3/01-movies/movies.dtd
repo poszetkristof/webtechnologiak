@@ -1,11 +1,29 @@
+<!-- A gyökérelem: akárhány film, akár egy sem -->
 <!ELEMENT movies (movie*)>
+
+<!-- Egy film tartalma, pontosan ebben a sorrendben.
+     A title és a genre mellett + áll, mert legalább egy kell belőlük, de lehet több is
+     (több nyelven a cím, több műfaj). Az év, az értékelés és a szavazatszám pontosan egyszer szerepel. -->
 <!ELEMENT movie (title+, year, genre+, rating, votes)>
+
+<!-- A film két attribútuma -->
 <!ATTLIST movie
     id CDATA #REQUIRED
     mpa-rating (G|NC-17|PG|PG-13|R) #IMPLIED>
+    <!-- id: az IMDb-azonosító, bármilyen szöveg lehet (CDATA), és kötelező megadni (#REQUIRED).
+         Azért nem ID típusú, mert az nem kezdődhet számjeggyel, ez viszont igen: 0078748.
+         mpa-rating: csak ez az öt érték állhat benne, és elhagyható (#IMPLIED). -->
+
+<!-- A cím csak szöveg -->
 <!ELEMENT title (#PCDATA)>
+
+<!-- Melyik nyelvű a cím: en, hu, fr, ja, el.
+     Az xml:lang szabványos attribútum, de a DTD-ben akkor is deklarálni kell.
+     NMTOKEN: egy szó szóköz nélkül, ezért jó a nyelvkódokhoz. -->
 <!ATTLIST title
     xml:lang NMTOKEN #REQUIRED>
+
+<!-- A többi elem mind sima szöveget tartalmaz -->
 <!ELEMENT year (#PCDATA)>
 <!ELEMENT genre (#PCDATA)>
 <!ELEMENT rating (#PCDATA)>
