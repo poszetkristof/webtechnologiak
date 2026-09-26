@@ -1,0 +1,19 @@
+<!-- Egy menüben almenü, menüpont és elválasztó lehet, akárhány, bármilyen sorrendben.
+     A | jelenti a választást (ez vagy az), a * az ismétlést (akárhányszor, akár egyszer sem).
+     A menu a saját tartalmában is szerepel, ezért lehet a menürendszer tetszőlegesen mély.
+ -->
+<!ELEMENT menu (menu|item|separator)*>
+
+<!-- A menü neve, pl. "File". Bármilyen szöveg lehet, és kötelező megadni. -->
+<!ATTLIST menu
+    name CDATA #REQUIRED>
+
+<!-- A menüpontnak nincs tartalma, minden információ a nevében van -->
+<!ELEMENT item EMPTY>
+
+<!-- A menüpont neve, pl. "Save as" (szóközzel együtt, ezért CDATA) -->
+<!ATTLIST item
+    name CDATA #REQUIRED>
+
+<!-- Az elválasztó vonal. Se tartalma, se attribútuma: a puszta létezése hordozza az információt. -->
+<!ELEMENT separator EMPTY>
