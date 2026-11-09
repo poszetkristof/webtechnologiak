@@ -1,0 +1,11 @@
+body {
+  display: flex;
+  height: 100vh;
+  margin: 0;
+}
+
+table.sudoku {
+  border: medium solid black;
+  border-collapse: collapse;
+  margin: auto;
+}
