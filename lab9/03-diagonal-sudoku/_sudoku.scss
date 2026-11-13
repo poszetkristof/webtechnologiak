@@ -1,0 +1,28 @@
+body {
+  display: flex;
+  height: 100vh;
+  margin: 0;
+}
+
+table.sudoku {
+  border: medium solid black;
+  border-collapse: collapse; // a szomszédos keretek egy vonallá olvadnak
+  margin: auto; // flexben középre kerül mindkét irányban
+
+  td {
+    border: thin solid lightgray;
+    height: 3em;
+    width: 3em;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  // minden 3. cella és sor: vastag vonal a 3x3-as blokkok között
+  td:nth-child(3n) {
+    border-right: medium solid black;
+  }
+
+  tr:nth-child(3n) {
+    border-bottom: medium solid black;
+  }
+}

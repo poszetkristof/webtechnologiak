@@ -1,0 +1,10 @@
+// _ a név elején: magában nem lesz belőle CSS, csak betöltésre való (@use "util")
+
+@use "sass:math";
+
+// Véletlen egész $min és $max között. math.random(n) 1..n-et ad, ezért:
+//   1) darabszám: $max - $min + 1   (-15..15 -> 31, math.random(31) -> 1..31)
+//   2) eltolás:   + $min - 1        (1..31 -> -15..15)
+@function random($min, $max) {
+  @return math.random(($max - $min) + 1) + $min - 1;
+}

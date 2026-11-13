@@ -1,11 +1,16 @@
-body {
-  display: flex;
-  height: 100vh;
-  margin: 0;
+@use "sudoku"; // _sudoku.scss: a rács
+
+// %: magában nem kerül a CSS-be, csak aki @extend-eli
+%diagonal {
+  background-color: gold;
 }
 
 table.sudoku {
-  border: medium solid black;
-  border-collapse: collapse;
-  margin: auto;
+  // az i. sorban az i. és a (10 - i). cella van az átlón
+  @for $i from 1 through 9 {
+    tr:nth-child(#{$i}) > td:nth-child(#{$i}),
+    tr:nth-child(#{$i}) > td:nth-child(#{10 - $i}) {
+      @extend %diagonal; // egy közös szabály lesz, nem 17 másolat
+    }
+  }
 }

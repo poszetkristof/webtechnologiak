@@ -1,8 +1,39 @@
 @use "sass:color";
 @use "sass:math";
 
-$base-color: pink;
+$base-color: pink; // a kiinduló szín
 
 body {
   margin: 0;
+}
+
+div.columns {
+  height: 100vh;
+  display: flex;
+
+  // & = a szülő szelektor, vagyis: div.columns > div
+  & > div {
+    display: flex;
+    flex: 1; // egyforma széles oszlopok
+    border: 1px solid black;
+    justify-content: center;
+    align-items: center;
+  }
+
+  // mixin: mint egy függvény, máshol is újra lehet használni
+  @mixin color-columns($n) {
+    @for $i from 1 through $n {
+      // 360 / 9 = 40 fokonként forgatjuk a színt
+      $color: color.adjust($base-color, $hue: ($i - 1) * math.div(360, $n - 1));
+      // #{$i}: a változó értéke beírva a szelektorba
+      & > div:nth-child(#{$i}) {
+        background-color: $color;
+      }
+
+      & > div:nth-child(#{$i})::before {
+        content: "#{$color}"; // a szín értéke szövegként kiírva az oszlopba
+      }
+    }
+  }
+  @include color-columns(10);
 }

@@ -1,0 +1,19 @@
+// 1. megoldás: véletlen rgb() színek
+@use "sass:math";
+@use "util"; // _util.scss
+@use "layout"; // _layout.scss
+
+.dancing-letters {
+  // 16 betű (szóköz nélkül)
+  @for $i from 1 through 16 {
+    & > span:nth-child(#{$i}) {
+      background-color: rgb(
+        math.random(256) - 1,
+        math.random(256) - 1,
+        math.random(256) - 1
+      ); // 0..255
+      transform: rotate(util.random(-15, 15) * 1deg); // szám * 1deg = fok
+    }
+  }
+}
+// A véletlen fordításkor sorsolódik, nem újratöltéskor.
