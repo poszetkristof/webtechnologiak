@@ -1,0 +1,15 @@
+// 2. megoldás: színek egy előre megadott listából
+@use "util"; // _util.scss
+@use "layout"; // _layout.scss
+
+// TODO: a színlista
+
+.dancing-letters {
+  @for $i from 1 through 16 {
+    & > span:nth-child(#{$i}) {
+      transform: rotate(
+        util.random(-15, 15) * 1deg
+      ); // ez már megvolt az 1. megoldásban
+    }
+  }
+}

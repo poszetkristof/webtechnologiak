@@ -1,0 +1,9 @@
+// _ a név elején: magában nem lesz belőle CSS, csak betöltésre való (@use "util")
+
+@use "sass:math";
+
+@function random($min, $max) {
+  @return math.random(($max - $min) + 1) + $min - 1;
+}
+
+// TODO: choose($list) - véletlen elem a listából (ehhez kell: @use "sass:list";)

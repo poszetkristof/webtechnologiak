@@ -1,0 +1,7 @@
+@import "cards.css"; /* a kártyák kinézete; az @import a fájl legelejére kell */
+
+/* Az elrendezés flexboxszal */
+
+body {
+  margin: 0;
+}

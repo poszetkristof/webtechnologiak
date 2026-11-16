@@ -1,0 +1,11 @@
+/* A kártyák kinézete (méret, keret, színek) */
+
+body {
+  background-color: green;
+}
+
+.card {
+  background-color: white;
+  border: medium solid black;
+  border-radius: 0.5rem;
+}
