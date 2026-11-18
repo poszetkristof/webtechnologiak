@@ -2,14 +2,16 @@
 @use "util"; // _util.scss
 @use "layout"; // _layout.scss
 
-// TODO: a színlista
+// Sass-lista: vesszővel elválasztott értékek
+$rainbow: red, orange, yellow, blue, green, indigo, violet;
 
 .dancing-letters {
+  // 16 betű (szóköz nélkül)
   @for $i from 1 through 16 {
     & > span:nth-child(#{$i}) {
-      transform: rotate(
-        util.random(-15, 15) * 1deg
-      ); // ez már megvolt az 1. megoldásban
+      transform: rotate(util.random(-15, 15) * 1deg); // szám * 1deg = fok
+      background-color: util.choose($rainbow); // véletlen szín a listából
     }
   }
 }
+// A véletlen fordításkor sorsolódik, nem újratöltéskor.

@@ -8,4 +8,16 @@ body {
   background-color: white;
   border: medium solid black;
   border-radius: 0.5rem;
+  height: 3.5in;
+  width: 2.5in;
+  font-family: sans-serif;
+  box-sizing: border-box;
+}
+
+.card[data-rank="A"] span.rank::before {
+  content: "A";
+}
+
+.card[data-suit="spades"] span.suit::before {
+  content: "\2660";
 }

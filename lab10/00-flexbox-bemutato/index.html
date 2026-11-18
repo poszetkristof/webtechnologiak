@@ -1,0 +1,892 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Flexbox bemutató</title>
+<style>
+  :root {
+    --bg: #0d1020;
+    --panel: #151935;
+    --panel-2: #1d2247;
+    --line: #2b3163;
+    --text: #e8eaf6;
+    --muted: #9aa3c7;
+    --accent: #8b93ff;
+    --main: #38bdf8;   /* főtengely */
+    --cross: #f472b6;  /* kereszttengely */
+    --coral: #ff7f50;
+    --gold: #ffd700;
+    --c-sel: #93c5fd;
+    --c-prop: #7dd3fc;
+    --c-val: #fcd34d;
+    --c-punc: #9aa3c7;
+    --c-com: #6b7399;
+    --c-tag: #f9a8d4;
+    --c-attr: #c4b5fd;
+    --c-str: #86efac;
+    --box: 260px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; scroll-snap-type: y proximity; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, "Segoe UI", Roboto, sans-serif;
+    font-size: 18px;
+    line-height: 1.5;
+  }
+
+  code, pre, .mono { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; }
+
+  /* ---------- felső sáv és pöttyök ---------- */
+  #progress {
+    position: fixed; top: 0; left: 0; height: 4px; width: 0;
+    background: linear-gradient(90deg, var(--main), var(--cross));
+    z-index: 20;
+  }
+
+  #dots {
+    position: fixed; right: 18px; top: 50%; transform: translateY(-50%);
+    display: flex; flex-direction: column; gap: 10px; z-index: 20;
+  }
+
+  #dots a {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--line); display: block; position: relative;
+    transition: background .3s, transform .3s;
+  }
+
+  #dots a.active { background: var(--accent); transform: scale(1.35); }
+
+  #dots a span {
+    position: absolute; right: 22px; top: 50%; transform: translateY(-50%);
+    white-space: nowrap; font-size: 13px; color: var(--muted);
+    background: var(--panel); padding: 2px 8px; border-radius: 6px;
+    opacity: 0; pointer-events: none; transition: opacity .2s;
+  }
+
+  #dots a:hover span { opacity: 1; }
+
+  /* ---------- diák ---------- */
+  .slide {
+    min-height: 100vh;
+    padding: 64px 72px 64px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    scroll-snap-align: start;
+  }
+
+  .slide-inner { width: 100%; max-width: 1180px; }
+
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity .7s, transform .7s; }
+  .slide.in .reveal { opacity: 1; transform: none; }
+  .slide.in .reveal:nth-child(2) { transition-delay: .12s; }
+  .slide.in .reveal:nth-child(3) { transition-delay: .24s; }
+
+  .step {
+    display: inline-block; font-size: 14px; font-weight: 700; letter-spacing: .08em;
+    color: var(--accent); text-transform: uppercase; margin-bottom: 6px;
+  }
+
+  h1 { font-size: clamp(48px, 9vw, 110px); line-height: 1; margin: 0 0 16px; letter-spacing: -.02em; }
+  h2 { font-size: clamp(30px, 4vw, 46px); line-height: 1.1; margin: 0 0 12px; }
+  h2 code { color: var(--c-prop); }
+
+  .lead { font-size: 21px; color: var(--muted); max-width: 820px; margin: 0 0 28px; }
+  .lead strong, .note strong { color: var(--text); }
+  .main-c { color: var(--main); font-weight: 700; }
+  .cross-c { color: var(--cross); font-weight: 700; }
+
+  .split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    gap: 32px;
+    align-items: start;
+  }
+
+  /* ---------- kódpanel ---------- */
+  .code {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .code + .code { margin-top: 16px; }
+
+  .code-title {
+    font-size: 13px; color: var(--muted); padding: 8px 16px;
+    border-bottom: 1px solid var(--line); background: var(--panel-2);
+  }
+
+  .code pre { margin: 0; padding: 16px 0; font-size: 17px; line-height: 1.65; overflow-x: auto; }
+
+  .ln { display: block; padding: 0 18px; border-left: 3px solid transparent; transition: opacity .3s; }
+  .ln.hl { background: rgba(139, 147, 255, .12); border-left-color: var(--accent); }
+  .ln.off { opacity: .3; text-decoration: line-through; }
+  .ln.flash { animation: flash 1s ease-out; }
+
+  @keyframes flash {
+    0% { background: rgba(252, 211, 77, .35); }
+    100% { background: rgba(139, 147, 255, .12); }
+  }
+
+  .s { color: var(--c-sel); }
+  .k { color: var(--c-prop); }
+  .v { color: var(--c-val); }
+  .p { color: var(--c-punc); }
+  .c { color: var(--c-com); font-style: italic; }
+  .tg { color: var(--c-tag); }
+  .at { color: var(--c-attr); }
+  .st { color: var(--c-str); }
+
+  .note {
+    margin-top: 16px; padding: 14px 18px; border-radius: 12px;
+    background: var(--panel); border: 1px solid var(--line); color: var(--muted); font-size: 17px;
+  }
+
+  .note.warn { border-color: #a16207; background: #2a210a; }
+
+  /* ---------- színpad (élő demó) ---------- */
+  .stage {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 20px;
+  }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 12px 18px; margin-bottom: 22px; align-items: end; }
+
+  .controls label { display: flex; flex-direction: column; gap: 4px; font-size: 14px; color: var(--muted); }
+  .controls label span { font-family: ui-monospace, Consolas, monospace; }
+
+  select, button, input[type="range"] { font: inherit; font-size: 16px; }
+
+  select, button {
+    background: var(--panel-2); color: var(--text);
+    border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px;
+  }
+
+  button { cursor: pointer; }
+  button:hover, select:hover { border-color: var(--accent); }
+
+  input[type="range"] { accent-color: var(--accent); width: 160px; }
+
+  .switch { flex-direction: row !important; align-items: center; gap: 10px !important; cursor: pointer; }
+  .switch input { width: 22px; height: 22px; accent-color: var(--accent); }
+  .switch span { font-size: 17px; color: var(--text); }
+
+  .arena { position: relative; padding: 46px 0 0 46px; }
+  .arena.no-axes { padding: 0; }
+
+  .demo {
+    position: relative;
+    border: 3px solid var(--accent);
+    border-radius: 10px;
+    background: rgba(139, 147, 255, .07);
+    padding: 8px;
+    min-height: 80px;
+  }
+
+  .demo.tall { height: 240px; }
+  .demo.square { width: var(--box); height: var(--box); }
+
+  .item {
+    background: var(--coral);
+    color: #1a1a1a;
+    font-weight: 800;
+    font-size: 20px;
+    border-radius: 8px;
+    padding: 14px 20px;
+    text-align: center;
+  }
+
+  .item:nth-child(even) { background: var(--gold); }
+
+  .fixed .item { width: 56px; height: 56px; padding: 0; display: flex; align-items: center; justify-content: center; }
+  .narrow .item { width: 56px; padding: 14px 0; }
+  .varied .item:nth-child(1) { padding: 10px 0; }
+  .varied .item:nth-child(2) { padding: 26px 0; }
+  .varied .item:nth-child(3) { padding: 16px 0; }
+
+  .pick .item { cursor: pointer; transition: box-shadow .2s; }
+  .pick .item.selected { box-shadow: 0 0 0 4px #fff, 0 0 0 8px var(--accent); }
+
+  /* ---------- tengelynyilak ---------- */
+  .axis { position: absolute; color: var(--main); }
+  .axis.cross { color: var(--cross); }
+
+  .axis .lbl {
+    position: absolute; font-size: 14px; font-weight: 700; white-space: nowrap;
+    font-family: system-ui, sans-serif; letter-spacing: .02em;
+  }
+
+  /* vízszintes nyíl a doboz fölött */
+  .axis.h { left: 46px; right: 14px; top: 22px; height: 3px; background: currentColor; }
+  .axis.h::after {
+    content: ""; position: absolute; right: -13px; top: -6px;
+    border-top: 7.5px solid transparent; border-bottom: 7.5px solid transparent;
+    border-left: 13px solid currentColor;
+  }
+  .axis.h .lbl { left: 50%; bottom: 8px; transform: translateX(-50%); }
+
+  /* függőleges nyíl a doboz mellett */
+  .axis.v { top: 46px; bottom: 14px; left: 22px; width: 3px; background: currentColor; }
+  .axis.v::after {
+    content: ""; position: absolute; bottom: -13px; left: -6px;
+    border-left: 7.5px solid transparent; border-right: 7.5px solid transparent;
+    border-top: 13px solid currentColor;
+  }
+  .axis.v .lbl { right: 10px; top: 50%; transform: translateY(-50%) rotate(180deg); writing-mode: vertical-rl; }
+
+  .draw .axis.h { transform-origin: left; animation: grow-x .9s ease-out both; }
+  .draw .axis.v { transform-origin: top; animation: grow-y .9s .3s ease-out both; }
+  @keyframes grow-x { from { transform: scaleX(0); } to { transform: none; } }
+  @keyframes grow-y { from { transform: scaleY(0); } to { transform: none; } }
+
+  /* forgó nyilak a flex-direction diához (a doboz négyzet alakú) */
+  .rot-arena { position: relative; width: calc(var(--box) + 80px); height: calc(var(--box) + 80px); padding: 60px 0 0 60px; margin: 0 auto; }
+
+  .rot {
+    position: absolute; left: 38px; top: 38px;
+    width: calc(var(--box) + 18px); height: 3px;
+    background: currentColor; transform-origin: 1.5px 1.5px;
+    transition: transform .8s cubic-bezier(.5, 0, .2, 1);
+  }
+  .rot::after, .rot::before {
+    content: ""; position: absolute; top: -6px;
+    border-top: 7.5px solid transparent; border-bottom: 7.5px solid transparent;
+    transition: opacity .3s;
+  }
+  .rot::after { right: -13px; border-left: 13px solid currentColor; }
+  .rot::before { left: -13px; border-right: 13px solid currentColor; opacity: 0; }
+  .rot.rev::after { opacity: 0; }
+  .rot.rev::before { opacity: 1; }
+  .rot.turned { transform: rotate(90deg); }
+
+  .axlbl {
+    position: absolute; font-size: 14px; font-weight: 700; white-space: nowrap;
+    transition: left .8s cubic-bezier(.5, 0, .2, 1), top .8s cubic-bezier(.5, 0, .2, 1), transform .8s cubic-bezier(.5, 0, .2, 1);
+  }
+  .axlbl.top { left: calc(60px + var(--box) / 2); top: 12px; transform: translateX(-50%); }
+  .axlbl.left { left: 18px; top: calc(60px + var(--box) / 2); transform: translate(-50%, -50%) rotate(-90deg); }
+
+  /* ---------- címdia ---------- */
+  .hero { text-align: center; }
+  .hero .lead { margin: 0 auto 36px; }
+  .hero-demo { display: flex; justify-content: center; gap: 14px; margin-bottom: 40px; }
+  .hero-demo .item { animation: bob 2.4s ease-in-out infinite; }
+  .hero-demo .item:nth-child(2) { animation-delay: .2s; }
+  .hero-demo .item:nth-child(3) { animation-delay: .4s; }
+  @keyframes bob { 50% { transform: translateY(-14px); } }
+  .scroll-hint { color: var(--muted); font-size: 16px; animation: bob 2s ease-in-out infinite; }
+
+  kbd {
+    font-family: ui-monospace, Consolas, monospace; font-size: 14px;
+    border: 1px solid var(--line); border-bottom-width: 3px; border-radius: 6px;
+    padding: 1px 7px; background: var(--panel-2);
+  }
+
+  /* ---------- összefoglaló ---------- */
+  .cheat { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+  .cheat div { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+  .cheat code { color: var(--c-prop); font-size: 17px; }
+  .cheat p { margin: 6px 0 0; color: var(--muted); font-size: 16px; }
+
+  @media (max-width: 900px) {
+    .slide { padding: 56px 16px; }
+    .split { grid-template-columns: minmax(0, 1fr); }
+    #dots { display: none; }
+    :root { --box: 220px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .reveal { opacity: 1; transform: none; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<nav id="dots" aria-label="Diák"></nav>
+
+<!-- ================= 0. CÍM ================= -->
+<section class="slide" data-title="Flexbox">
+  <div class="slide-inner hero">
+    <div class="reveal">
+      <div class="hero-demo"><div class="item">1</div><div class="item">2</div><div class="item">3</div></div>
+      <h1>Flexbox</h1>
+    </div>
+    <p class="lead reveal">Egy doboz, ami <strong>elrendezi és igazítja</strong> a benne lévő elemeket.</p>
+    <p class="scroll-hint reveal">Görgess lefelé, vagy használd a <kbd>↓</kbd> <kbd>↑</kbd> billentyűket</p>
+  </div>
+</section>
+
+<!-- ================= 1. HTML ================= -->
+<section class="slide" data-title="A kiindulás">
+  <div class="slide-inner">
+    <div class="reveal">
+      <span class="step">1. A kiindulás</span>
+      <h2>Egy doboz, benne 3 <code>div</code></h2>
+      <p class="lead">Alapból a <code>div</code>-ek <strong>egymás alá</strong> kerülnek, és kitöltik a teljes szélességet.</p>
+    </div>
+    <div class="split reveal">
+      <div class="code">
+        <div class="code-title">HTML</div>
+<pre><span class="ln"><span class="p">&lt;</span><span class="tg">div</span> <span class="at">class</span><span class="p">=</span><span class="st">"container"</span><span class="p">&gt;</span></span><span class="ln hl">  <span class="p">&lt;</span><span class="tg">div</span> <span class="at">class</span><span class="p">=</span><span class="st">"item"</span><span class="p">&gt;</span>1<span class="p">&lt;/</span><span class="tg">div</span><span class="p">&gt;</span></span><span class="ln hl">  <span class="p">&lt;</span><span class="tg">div</span> <span class="at">class</span><span class="p">=</span><span class="st">"item"</span><span class="p">&gt;</span>2<span class="p">&lt;/</span><span class="tg">div</span><span class="p">&gt;</span></span><span class="ln hl">  <span class="p">&lt;</span><span class="tg">div</span> <span class="at">class</span><span class="p">=</span><span class="st">"item"</span><span class="p">&gt;</span>3<span class="p">&lt;/</span><span class="tg">div</span><span class="p">&gt;</span></span><span class="ln"><span class="p">&lt;/</span><span class="tg">div</span><span class="p">&gt;</span></span></pre>
+      </div>
+      <div class="stage">
+        <div class="demo" style="display: block">
+          <div class="item">1</div>
+          <div class="item">2</div>
+          <div class="item">3</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 2. display: flex ================= -->
+<section class="slide" data-title="display: flex">
+  <div class="slide-inner">
+    <div class="reveal">
+      <span class="step">2. Egy sor CSS</span>
+      <h2><code>display: flex</code></h2>
+      <p class="lead">A <strong>dobozra</strong> írjuk (a szülőre), és a <strong>közvetlen gyerekeit</strong> rendezi el: egymás mellé kerülnek. Kapcsold ki-be!</p>
+    </div>
+    <div class="split reveal">
+      <div>
+        <div class="code">
+          <div class="code-title">CSS</div>
+<pre><span class="ln"><span class="s">.container</span> <span class="p">{</span></span><span class="ln hl" id="flex-line">  <span class="k">display</span><span class="p">:</span> <span class="v">flex</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></pre>
+        </div>
+        <div class="note">A doboz a <strong>flex konténer</strong>, a benne lévő elemek a <strong>flex elemek</strong>. A neve onnan jön, hogy <strong>rugalmas</strong>: az elemek a rendelkezésre álló helyhez igazodnak.</div>
+      </div>
+      <div class="stage">
+        <div class="controls">
+          <label class="switch"><input type="checkbox" id="flex-toggle" checked /><span>display: flex</span></label>
+        </div>
+        <div class="demo" id="demo-flex" style="display: flex">
+          <div class="item">1</div>
+          <div class="item">2</div>
+          <div class="item">3</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 3. tengelyek ================= -->
+<section class="slide" data-title="Két tengely">
+  <div class="slide-inner">
+    <div class="reveal">
+      <span class="step">3. Két irány</span>
+      <h2><span class="main-c">Főtengely</span> és <span class="cross-c">kereszttengely</span></h2>
+      <p class="lead">Mielőtt igazítunk, két irányt kell ismerni.</p>
+    </div>
+    <div class="split reveal">
+      <div>
+        <div class="note" style="margin-top: 0">
+          <p style="margin: 0 0 10px"><span class="main-c">Főtengely:</span> amerre az elemek sorakoznak. Alapból balról jobbra.</p>
+          <p style="margin: 0"><span class="cross-c">Kereszttengely:</span> erre merőleges. Alapból fentről lefelé.</p>
+        </div>
+        <div class="note">
+          Minden igazítás valamelyik tengelyhez tartozik:<br />
+          <code class="k">justify-content</code> → <span class="main-c">főtengely</span><br />
+          <code class="k">align-items</code> → <span class="cross-c">kereszttengely</span>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="arena draw">
+          <div class="axis h"><span class="lbl">főtengely</span></div>
+          <div class="axis v cross"><span class="lbl">kereszttengely</span></div>
+          <div class="demo fixed tall" style="display: flex">
+            <div class="item">1</div>
+            <div class="item">2</div>
+            <div class="item">3</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 4. justify-content ================= -->
+<section class="slide" data-title="justify-content">
+  <div class="slide-inner">
+    <div class="reveal">
+      <span class="step">4. Igazítás a <span class="main-c">főtengelyen</span></span>
+      <h2><code>justify-content</code></h2>
+      <p class="lead">Hova kerüljenek az elemek a sorban, és hova a <strong>maradék hely</strong>?</p>
+    </div>
+    <div class="split reveal">
+      <div>
+        <div class="code">
+          <div class="code-title">CSS</div>
+<pre><span class="ln"><span class="s">.container</span> <span class="p">{</span></span><span class="ln">  <span class="k">display</span><span class="p">:</span> <span class="v">flex</span><span class="p">;</span></span><span class="ln hl">  <span class="k">justify-content</span><span class="p">:</span> <span class="v" data-show="jc">flex-start</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></pre>
+        </div>
+        <div class="note" id="jc-note"></div>
+      </div>
+      <div class="stage">
+        <div class="controls">
+          <label><span>justify-content</span>
+            <select id="jc" data-demo="demo-jc" data-prop="justify-content">
+              <option>flex-start</option>
+              <option>flex-end</option>
+              <option>center</option>
+              <option>space-between</option>
+              <option>space-around</option>
+              <option>space-evenly</option>
+            </select>
+          </label>
+        </div>
+        <div class="arena">
+          <div class="axis h"><span class="lbl">főtengely</span></div>
+          <div class="demo fixed" id="demo-jc" style="display: flex">
+            <div class="item">1</div>
+            <div class="item">2</div>
+            <div class="item">3</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 5. align-items ================= -->
+<section class="slide" data-title="align-items">
+  <div class="slide-inner">
+    <div class="reveal">
+      <span class="step">5. Igazítás a <span class="cross-c">kereszttengelyen</span></span>
+      <h2><code>align-items</code></h2>
+      <p class="lead">Hova kerüljenek az elemek a másik irányban? Itt most fent, középen vagy lent.</p>
+    </div>
+    <div class="split reveal">
+      <div>
+        <div class="code">
+          <div class="code-title">CSS</div>
+<pre><span class="ln"><span class="s">.container</span> <span class="p">{</span></span><span class="ln">  <span class="k">display</span><span class="p">:</span> <span class="v">flex</span><span class="p">;</span></span><span class="ln">  <span class="k">height</span><span class="p">:</span> <span class="v">240px</span><span class="p">;</span></span><span class="ln hl">  <span class="k">align-items</span><span class="p">:</span> <span class="v" data-show="ai">stretch</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></pre>
+        </div>
+        <div class="note warn">Válts <strong>flex-start</strong>-ra: az elemek alapból <strong>különböző magasak</strong> (a tartalmuk szerint). A <strong>stretch</strong> (ez az alap) mindet kinyújtja a doboz teljes magasságáig, ezért lesznek egyformák. Ha egy elemnek <strong>megadott magassága</strong> van (pl. <code>height: 50px</code> a playgroundon), azt nem nyújtja meg.</div>
+      </div>
+      <div class="stage">
+        <div class="controls">
+          <label><span>align-items</span>
+            <select id="ai" data-demo="demo-ai" data-prop="align-items">
+              <option>stretch</option>
+              <option>flex-start</option>
+              <option>center</option>
+              <option>flex-end</option>
+            </select>
+          </label>
+        </div>
+        <div class="arena">
+          <div class="axis v cross"><span class="lbl">kereszttengely</span></div>
+          <div class="demo tall narrow varied" id="demo-ai" style="display: flex; gap: 10px">
+            <div class="item">1</div>
+            <div class="item">2</div>
+            <div class="item">3</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 6. a híres 3 sor ================= -->
+<section class="slide" data-title="A híres 3 sor">
+  <div class="slide-inner">
+    <div class="reveal">
+      <span class="step">6. A kettő együtt</span>
+      <h2>A híres 3 sor: középre igazítás</h2>
+      <p class="lead">A flexbox előtt egy elemet függőlegesen középre tenni nagyon nehéz volt. Most három sor. Utána próbálj ki más kombinációkat is!</p>
+    </div>
+    <div class="split reveal">
+      <div class="code">
+        <div class="code-title">CSS</div>
+<pre><span class="ln"><span class="s">.container</span> <span class="p">{</span></span><span class="ln hl">  <span class="k">display</span><span class="p">:</span> <span class="v">flex</span><span class="p">;</span></span><span class="ln hl">  <span class="k">justify-content</span><span class="p">:</span> <span class="v" data-show="jc2">center</span><span class="p">;</span> <span class="c">/* főtengely */</span></span><span class="ln hl">  <span class="k">align-items</span><span class="p">:</span> <span class="v" data-show="ai2">center</span><span class="p">;</span>     <span class="c">/* kereszttengely */</span></span><span class="ln"><span class="p">}</span></span></pre>
+      </div>
+      <div class="stage">
+        <div class="controls">
+          <label><span>justify-content</span>
+            <select id="jc2" data-demo="demo-both" data-prop="justify-content">
+              <option>flex-start</option>
+              <option>flex-end</option>
+              <option selected>center</option>
+              <option>space-between</option>
+              <option>space-around</option>
+              <option>space-evenly</option>
+            </select>
+          </label>
+          <label><span>align-items</span>
+            <select id="ai2" data-demo="demo-both" data-prop="align-items">
+              <option>stretch</option>
+              <option>flex-start</option>
+              <option selected>center</option>
+              <option>flex-end</option>
+            </select>
+          </label>
+        </div>
+        <div class="arena">
+          <div class="axis h"><span class="lbl">főtengely</span></div>
+          <div class="axis v cross"><span class="lbl">kereszttengely</span></div>
+          <div class="demo tall narrow" id="demo-both" style="display: flex; justify-content: center; align-items: center">
+            <div class="item">1</div>
+            <div class="item">2</div>
+            <div class="item">3</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 7. flex-wrap + gap ================= -->
+<section class="slide" data-title="flex-wrap és gap">
+  <div class="slide-inner">
+    <div class="reveal">
+      <span class="step">7. Ha nem férnek el</span>
+      <h2><code>flex-wrap</code> és <code>gap</code></h2>
+      <p class="lead">Alapból minden elem <strong>egy sorba</strong> kerül, és ha nincs elég hely, összemennek. A <code>wrap</code> megengedi, hogy új sorba törjenek. Húzd keskenyebbre a dobozt!</p>
+    </div>
+    <div class="split reveal">
+      <div>
+        <div class="code">
+          <div class="code-title">CSS</div>
+<pre><span class="ln"><span class="s">.container</span> <span class="p">{</span></span><span class="ln">  <span class="k">display</span><span class="p">:</span> <span class="v">flex</span><span class="p">;</span></span><span class="ln hl">  <span class="k">flex-wrap</span><span class="p">:</span> <span class="v" data-show="fw">nowrap</span><span class="p">;</span></span><span class="ln hl">  <span class="k">gap</span><span class="p">:</span> <span class="v" data-show="gap">8px</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></pre>
+        </div>
+        <div class="note">A <code class="k">gap</code> csak az elemek <strong>közé</strong> tesz helyet, a doboz szélére nem. A kártyáknál ezzel lesz hely a lapok között.</div>
+      </div>
+      <div class="stage">
+        <div class="controls">
+          <label><span>flex-wrap</span>
+            <select id="fw" data-demo="demo-wrap" data-prop="flex-wrap">
+              <option>nowrap</option>
+              <option>wrap</option>
+              <option>wrap-reverse</option>
+            </select>
+          </label>
+          <label><span>gap: <b id="gap-val">8</b>px</span>
+            <input type="range" id="gap" min="0" max="40" value="8" data-demo="demo-wrap" data-prop="gap" data-unit="px" />
+          </label>
+          <label><span>a doboz szélessége</span>
+            <input type="range" id="wrap-width" min="45" max="100" value="100" />
+          </label>
+          <button id="add-item" type="button">+ elem</button>
+          <button id="remove-item" type="button">− elem</button>
+        </div>
+        <div class="demo fixed" id="demo-wrap" style="display: flex; gap: 8px">
+          <div class="item">1</div><div class="item">2</div><div class="item">3</div><div class="item">4</div>
+          <div class="item">5</div><div class="item">6</div><div class="item">7</div><div class="item">8</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 8. flex-direction ================= -->
+<section class="slide" data-title="flex-direction">
+  <div class="slide-inner">
+    <div class="reveal">
+      <span class="step">8. Fordítsuk el!</span>
+      <h2><code>flex-direction</code></h2>
+      <p class="lead">Ez dönti el, <strong>merre</strong> sorakozzanak az elemek. Vele együtt a tengelyek is elfordulnak: <code>column</code>-nál a <span class="main-c">főtengely</span> függőleges lesz.</p>
+    </div>
+    <div class="split reveal">
+      <div>
+        <div class="code">
+          <div class="code-title">CSS</div>
+<pre><span class="ln"><span class="s">.container</span> <span class="p">{</span></span><span class="ln">  <span class="k">display</span><span class="p">:</span> <span class="v">flex</span><span class="p">;</span></span><span class="ln hl">  <span class="k">flex-direction</span><span class="p">:</span> <span class="v" data-show="fd">row</span><span class="p">;</span></span><span class="ln">  <span class="k">justify-content</span><span class="p">:</span> <span class="v" data-show="jc3">flex-start</span><span class="p">;</span></span><span class="ln"><span class="p">}</span></span></pre>
+        </div>
+        <div class="note">A <code class="k">justify-content</code> mindig a <span class="main-c">főtengelyen</span> igazít. Állítsd <code>center</code>-re, aztán válts <code>column</code>-ra: ugyanaz a tulajdonság, de most függőlegesen hat.</div>
+      </div>
+      <div class="stage">
+        <div class="controls">
+          <label><span>flex-direction</span>
+            <select id="fd" data-demo="demo-dir" data-prop="flex-direction">
+              <option>row</option>
+              <option>row-reverse</option>
+              <option>column</option>
+              <option>column-reverse</option>
+            </select>
+          </label>
+          <label><span>justify-content</span>
+            <select id="jc3" data-demo="demo-dir" data-prop="justify-content">
+              <option>flex-start</option>
+              <option>flex-end</option>
+              <option>center</option>
+              <option>space-between</option>
+            </select>
+          </label>
+        </div>
+        <div class="rot-arena" id="rot-arena">
+          <div class="rot" id="rot-main" style="color: var(--main)"></div>
+          <div class="rot turned" id="rot-cross" style="color: var(--cross)"></div>
+          <span class="axlbl top main-c" id="lbl-main">főtengely</span>
+          <span class="axlbl left cross-c" id="lbl-cross">kereszttengely</span>
+          <div class="demo fixed square" id="demo-dir" style="display: flex">
+            <div class="item">1</div>
+            <div class="item">2</div>
+            <div class="item">3</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 9. align-self ================= -->
+<section class="slide" data-title="align-self">
+  <div class="slide-inner">
+    <div class="reveal">
+      <span class="step">9. Egy elem kivételt kap</span>
+      <h2><code>align-self</code></h2>
+      <p class="lead">Az <code>align-items</code> <strong>mindenkire</strong> hat. Ha egyetlen elemet máshova akarsz tenni a <span class="cross-c">kereszttengelyen</span>, arra az elemre írd az <code>align-self</code>-et. <strong>Kattints egy elemre!</strong></p>
+    </div>
+    <div class="split reveal">
+      <div>
+        <div class="code">
+          <div class="code-title">CSS</div>
+<pre><span class="ln"><span class="s">.container</span> <span class="p">{</span></span><span class="ln">  <span class="k">display</span><span class="p">:</span> <span class="v">flex</span><span class="p">;</span></span><span class="ln">  <span class="k">align-items</span><span class="p">:</span> <span class="v">center</span><span class="p">;</span> <span class="c">/* mindenki középen... */</span></span><span class="ln"><span class="p">}</span></span><span class="ln"> </span><span class="ln hl" id="as-line"><span class="s">.item:nth-child(<span id="as-n">2</span>)</span> <span class="p">{</span></span><span class="ln hl">  <span class="k">align-self</span><span class="p">:</span> <span class="v" data-show="as">flex-start</span><span class="p">;</span> <span class="c">/* ...kivéve ezt */</span></span><span class="ln"><span class="p">}</span></span></pre>
+        </div>
+        <div class="note">Mindkét feladatban kell: a playgroundon a vezérlőpanel ne nyúljon meg, a kártyákon a sarkok kerüljenek felülre és alulra.</div>
+      </div>
+      <div class="stage">
+        <div class="controls">
+          <label><span>align-self (a kijelölt elemen)</span>
+            <select id="as">
+              <option>auto</option>
+              <option selected>flex-start</option>
+              <option>center</option>
+              <option>flex-end</option>
+              <option>stretch</option>
+            </select>
+          </label>
+        </div>
+        <div class="arena">
+          <div class="axis v cross"><span class="lbl">kereszttengely</span></div>
+          <div class="demo tall narrow pick" id="demo-as" style="display: flex; align-items: center; justify-content: center; gap: 12px">
+            <div class="item">1</div>
+            <div class="item selected" style="align-self: flex-start">2</div>
+            <div class="item">3</div>
+            <div class="item">4</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 11. összefoglaló ================= -->
+<section class="slide" data-title="Összefoglaló">
+  <div class="slide-inner">
+    <div class="reveal">
+      <span class="step">Puska</span>
+      <h2>Összefoglaló</h2>
+    </div>
+    <div class="cheat reveal">
+      <div><code>display: flex</code><p>A dobozra (szülőre). A gyerekei egymás mellé kerülnek.</p></div>
+      <div><code>flex-direction</code><p>Merre sorakoznak: <code>row</code> (alap), <code>column</code>, <code>-reverse</code>.</p></div>
+      <div><code>justify-content</code><p>Igazítás a <span class="main-c">főtengelyen</span>.</p></div>
+      <div><code>align-items</code><p>Igazítás a <span class="cross-c">kereszttengelyen</span>. Alap: <code>stretch</code>.</p></div>
+      <div><code>flex-wrap: wrap</code><p>Ami nem fér el, új sorba kerül.</p></div>
+      <div><code>gap</code><p>Hely az elemek között.</p></div>
+      <div><code>align-self</code><p>Egy elem kivételt kap a kereszttengelyen.</p></div>
+      <div><code>center + center</code><p>A híres 3 sor: <code>display: flex</code> + <code>justify-content: center</code> + <code>align-items: center</code>.</p></div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // FLIP-animáció: megjegyzi az elemek helyét, elvégzi a változást, majd a régi helyükről úsztatja őket az újra.
+  function flip(demo, change) {
+    const items = [...demo.querySelectorAll(".item")];
+    const before = new Map(items.map((el) => [el, el.getBoundingClientRect()]));
+    change();
+    if (reduceMotion) return;
+    demo.querySelectorAll(".item").forEach((el) => {
+      const first = before.get(el);
+      if (!first) {
+        el.animate([{ opacity: 0, transform: "scale(.5)" }, { opacity: 1, transform: "none" }], { duration: 350, easing: "ease-out" });
+        return;
+      }
+      const last = el.getBoundingClientRect();
+      const dx = first.left - last.left;
+      const dy = first.top - last.top;
+      const sx = first.width / last.width;
+      const sy = first.height / last.height;
+      if (dx || dy || sx !== 1 || sy !== 1) {
+        el.animate(
+          [
+            { transformOrigin: "top left", transform: `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})` },
+            { transformOrigin: "top left", transform: "none" },
+          ],
+          { duration: 550, easing: "cubic-bezier(.2, .8, .2, 1)" }
+        );
+      }
+    });
+  }
+
+  // A kódban a változott sor felvillan.
+  function flash(el) {
+    const line = el.closest(".ln");
+    if (!line) return;
+    line.classList.remove("flash");
+    void line.offsetWidth;
+    line.classList.add("flash");
+  }
+
+  function showValue(id, value) {
+    document.querySelectorAll(`[data-show="${id}"]`).forEach((span) => {
+      span.textContent = value;
+      flash(span);
+    });
+  }
+
+  // Általános bekötés: data-demo = melyik dobozra, data-prop = melyik CSS-tulajdonság.
+  document.querySelectorAll("[data-prop]").forEach((ctrl) => {
+    const demo = document.getElementById(ctrl.dataset.demo);
+    const unit = ctrl.dataset.unit || "";
+    const isRange = ctrl.type === "range";
+    ctrl.addEventListener(isRange ? "input" : "change", () => {
+      const value = ctrl.value + unit;
+      if (isRange) {
+        demo.style.setProperty(ctrl.dataset.prop, value);
+      } else {
+        flip(demo, () => demo.style.setProperty(ctrl.dataset.prop, value));
+      }
+      showValue(ctrl.id, value);
+    });
+  });
+
+  // 2. display: flex ki-be
+  const flexToggle = document.getElementById("flex-toggle");
+  const demoFlex = document.getElementById("demo-flex");
+  flexToggle.addEventListener("change", () => {
+    flip(demoFlex, () => (demoFlex.style.display = flexToggle.checked ? "flex" : "block"));
+    const line = document.getElementById("flex-line");
+    line.classList.toggle("off", !flexToggle.checked);
+    flash(line);
+  });
+
+  // 4. magyarázat a justify-content értékeihez
+  const jcNotes = {
+    "flex-start": "<strong>flex-start</strong>: a főtengely elejére. Ez az alap.",
+    "flex-end": "<strong>flex-end</strong>: a főtengely végére.",
+    "center": "<strong>center</strong>: középre.",
+    "space-between": "<strong>space-between</strong>: a szélsők a falhoz, a maradék hely <strong>közéjük</strong>. Ez kell majd a kártyákhoz.",
+    "space-around": "<strong>space-around</strong>: mindenki körül egyforma hely, ezért a falnál fele akkora rés van.",
+    "space-evenly": "<strong>space-evenly</strong>: minden rés pontosan egyforma, a falnál is.",
+  };
+  const jcSelect = document.getElementById("jc");
+  const jcNote = document.getElementById("jc-note");
+  const updateJcNote = () => (jcNote.innerHTML = jcNotes[jcSelect.value]);
+  jcSelect.addEventListener("change", updateJcNote);
+  updateJcNote();
+
+  // 7. elemek hozzáadása / elvétele, doboz szélessége
+  const demoWrap = document.getElementById("demo-wrap");
+  document.getElementById("add-item").addEventListener("click", () => {
+    flip(demoWrap, () => {
+      const item = document.createElement("div");
+      item.className = "item";
+      item.textContent = demoWrap.children.length + 1;
+      demoWrap.appendChild(item);
+    });
+  });
+  document.getElementById("remove-item").addEventListener("click", () => {
+    if (demoWrap.lastElementChild) flip(demoWrap, () => demoWrap.lastElementChild.remove());
+  });
+  document.getElementById("wrap-width").addEventListener("input", (event) => {
+    demoWrap.style.width = event.currentTarget.value + "%";
+  });
+  document.getElementById("gap").addEventListener("input", (event) => {
+    document.getElementById("gap-val").textContent = event.currentTarget.value;
+  });
+
+  // 8. flex-direction: a nyilak elfordulnak
+  const fdSelect = document.getElementById("fd");
+  const rotMain = document.getElementById("rot-main");
+  const rotCross = document.getElementById("rot-cross");
+  const lblMain = document.getElementById("lbl-main");
+  const lblCross = document.getElementById("lbl-cross");
+  fdSelect.addEventListener("change", () => {
+    const value = fdSelect.value;
+    const column = value.startsWith("column");
+    rotMain.classList.toggle("turned", column);
+    rotCross.classList.toggle("turned", !column);
+    rotMain.classList.toggle("rev", value.endsWith("reverse"));
+    lblMain.className = "axlbl main-c " + (column ? "left" : "top");
+    lblCross.className = "axlbl cross-c " + (column ? "top" : "left");
+  });
+
+  // 9. align-self: kattintásra kijelölés
+  const demoAs = document.getElementById("demo-as");
+  const asSelect = document.getElementById("as");
+  let selected = demoAs.querySelector(".selected");
+  demoAs.addEventListener("click", (event) => {
+    const item = event.target.closest(".item");
+    if (!item) return;
+    selected.classList.remove("selected");
+    selected = item;
+    selected.classList.add("selected");
+    asSelect.value = selected.style.alignSelf || "auto";
+    document.getElementById("as-n").textContent = [...demoAs.children].indexOf(selected) + 1;
+    showValue("as", asSelect.value);
+  });
+  asSelect.addEventListener("change", () => {
+    flip(demoAs, () => (selected.style.alignSelf = asSelect.value === "auto" ? "" : asSelect.value));
+    showValue("as", asSelect.value);
+  });
+
+  // Diák: beúszás, pöttyök, folyamatjelző, billentyűzet
+  const slides = [...document.querySelectorAll(".slide")];
+  const dots = document.getElementById("dots");
+  slides.forEach((slide, i) => {
+    slide.id = slide.id || `dia-${i}`;
+    const a = document.createElement("a");
+    a.href = `#${slide.id}`;
+    a.innerHTML = `<span>${slide.dataset.title}</span>`;
+    dots.appendChild(a);
+  });
+
+  let current = 0;
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("in");
+        current = slides.indexOf(entry.target);
+        [...dots.children].forEach((dot, i) => dot.classList.toggle("active", i === current));
+      });
+    },
+    { threshold: 0.45 }
+  );
+  slides.forEach((slide) => observer.observe(slide));
+
+  window.addEventListener("scroll", () => {
+    const max = document.documentElement.scrollHeight - innerHeight;
+    document.getElementById("progress").style.width = (max > 0 ? (scrollY / max) * 100 : 0) + "%";
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.target.closest("select, input, button")) return;
+    let next = null;
+    if (["ArrowDown", "PageDown", " "].includes(event.key)) next = current + 1;
+    if (["ArrowUp", "PageUp"].includes(event.key)) next = current - 1;
+    if (next === null || next < 0 || next >= slides.length) return;
+    event.preventDefault();
+    slides[next].scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
+  });
+</script>
+</body>
+</html>

@@ -6,14 +6,66 @@
     <link rel="stylesheet" href="flexbox-playground.css" />
   </head>
   <body>
-    <!-- bal oldal: a flex konténer, kezdetben üres -->
+    <!-- bal oldal: a flex konténer, kezdetben üres (a JS tölti fel) -->
     <div id="container"></div>
 
-    <!-- jobb oldal: gombok és legördülő listák -->
+    <!-- jobb oldal: gombok és legördülő listák; az id-k alapján találja meg őket a JS -->
     <div id="controls">
-      <!-- TODO: Add Item és Reset gomb, 4 legördülő lista -->
+      <div>
+        <button id="add-item-btn">Add Item</button>
+      </div>
+      <div>
+        <button id="reset-btn">Reset</button>
+      </div>
+      <div>
+        <!-- for="..." = melyik id-jú elemhez tartozik a felirat -->
+        <label for="flex-direction-select">flex-direction</label>
+        <select id="flex-direction-select">
+          <!-- üres value: nincs beállítva, az alapérték érvényes -->
+          <option value="">(unset)</option>
+          <option value="column">column</option>
+          <option value="column-reverse">column-reverse</option>
+          <option value="row">row</option>
+          <option value="row-reverse">row-reverse</option>
+        </select>
+      </div>
+      <div>
+        <label for="justify-content-select">justify-content</label>
+        <select id="justify-content-select">
+          <option value="">(unset)</option>
+          <option value="flex-start">flex-start</option>
+          <option value="flex-end">flex-end</option>
+          <option value="center">center</option>
+          <option value="start">start</option>
+          <option value="end">end</option>
+          <option value="space-between">space-between</option>
+          <option value="space-around">space-around</option>
+          <option value="space-evenly">space-evenly</option>
+        </select>
+      </div>
+      <div>
+        <label for="align-items-select">align-items</label>
+        <select id="align-items-select">
+          <option value="">(unset)</option>
+          <option value="flex-start">flex-start</option>
+          <option value="flex-end">flex-end</option>
+          <option value="center">center</option>
+          <option value="start">start</option>
+          <option value="end">end</option>
+        </select>
+      </div>
+      <div>
+        <label for="flex-wrap-select">flex-wrap</label>
+        <select id="flex-wrap-select">
+          <option value="">(unset)</option>
+          <option value="nowrap">nowrap</option>
+          <option value="wrap">wrap</option>
+          <option value="wrap-reverse">wrap-reverse</option>
+        </select>
+      </div>
     </div>
 
+    <!-- a végén, hogy a JS már megtalálja a fenti elemeket -->
     <script src="flexbox-playground.js"></script>
   </body>
 </html>
